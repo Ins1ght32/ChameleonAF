@@ -1,0 +1,10 @@
+{
+    "apktool_path": "",
+    "android_jar": "",
+    "d8_path": "",
+    "baksmali_jar": "",
+    "javac_path": "",
+    "java_path": "",
+    "keystore_path": "",
+    "adb_path": ""
+}

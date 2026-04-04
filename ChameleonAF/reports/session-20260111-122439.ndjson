@@ -1,0 +1,9 @@
+{"ts":"2026-01-11T12:24:39.903+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"initialising","sdk":31}
+{"ts":"2026-01-11T12:25:01.885+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"initialising","sdk":31}
+{"ts":"2026-01-11T12:25:13.874+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"initialisation_completed","sdk":31}
+{"ts":"2026-01-11T12:25:13.963+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"triggered","extra":"Honeytoken access detected: c\t\/storage\/emulated\/0\/honeytoken_20260111_122513.txt","sdk":31}
+{"ts":"2026-01-11T12:25:14.003+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"triggered","extra":"Honeytoken access detected: r\t\/storage\/emulated\/0\/honeytoken_20260111_122513.txt","sdk":31}
+{"ts":"2026-01-11T12:25:14.006+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"triggered","extra":"Honeytoken access detected: c\t\/storage\/emulated\/0\/honeytoken_20260111_122513.txt","sdk":31}
+{"ts":"2026-01-11T12:25:14.022+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"triggered","extra":"Honeytoken access detected: c\t\/storage\/emulated\/0\/honeytoken_20260111_122513.txt","sdk":31}
+{"ts":"2026-01-11T12:25:14.093+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"triggered","extra":"Honeytoken access detected: w\t\/storage\/emulated\/0\/honeytoken_20260111_122513.txt","sdk":31}
+{"ts":"2026-01-11T12:25:14.412+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"initialisation_completed","sdk":31}

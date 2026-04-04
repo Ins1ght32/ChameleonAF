@@ -1,0 +1,3 @@
+{"ts":"2026-02-28T06:36:44.965+0000","feature":"com.chameleonforensics.chameleon.AntiBackupDetect","action":"initialising","sdk":31}
+{"ts":"2026-02-28T06:36:48.568+0000","feature":"com.chameleonforensics.chameleon.AntiBackupDetect","action":"initialisation_completed","sdk":31}
+{"ts":"2026-02-28T06:37:03.738+0000","feature":"com.chameleonforensics.chameleon.AntiBackupDetect","action":"triggered","sdk":31}

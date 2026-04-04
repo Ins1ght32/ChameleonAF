@@ -1,0 +1,10 @@
+{"ts":"2026-02-28T06:33:21.958+0000","feature":"com.chameleonforensics.chameleon.AntiBackupDetect","action":"initialising","sdk":31}
+{"ts":"2026-02-28T06:33:22.032+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"initialising","sdk":31}
+{"ts":"2026-02-28T06:33:22.041+0000","feature":"com.chameleonforensics.chameleon.AntiAgent","action":"initialising","sdk":31}
+{"ts":"2026-02-28T06:33:23.254+0000","feature":"com.chameleonforensics.chameleon.AntiAgent","action":"initialisation_completed","sdk":31}
+{"ts":"2026-02-28T06:33:30.512+0000","feature":"com.chameleonforensics.chameleon.AntiBackupDetect","action":"initialisation_completed","sdk":31}
+{"ts":"2026-02-28T06:33:30.711+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"initialisation_completed","sdk":31}
+{"ts":"2026-02-28T06:33:30.818+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"triggered","extra":"Honeytoken access detected: r\t\/storage\/emulated\/0\/honeytoken_20260228_063330.txt","sdk":31}
+{"ts":"2026-02-28T06:33:30.881+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"triggered","extra":"Honeytoken access detected: 0\t\/storage\/emulated\/0\/honeytoken_20260228_063330.txt","sdk":31}
+{"ts":"2026-02-28T06:33:30.935+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"triggered","extra":"Honeytoken access detected: r\t\/storage\/emulated\/0\/honeytoken_20260228_063330.txt","sdk":31}
+{"ts":"2026-02-28T06:33:30.978+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"triggered","extra":"Honeytoken access detected: 0\t\/storage\/emulated\/0\/honeytoken_20260228_063330.txt","sdk":31}

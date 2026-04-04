@@ -1,0 +1,4 @@
+{"ts":"2026-01-11T12:35:13.195+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"initialising","sdk":31}
+{"ts":"2026-01-11T12:35:16.512+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"initialisation_completed","sdk":31}
+{"ts":"2026-01-11T12:35:33.523+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"triggered","extra":"Honeytoken access detected: r\t\/storage\/emulated\/0\/honeytoken_20260111_123516.txt","sdk":31}
+{"ts":"2026-01-11T12:35:33.528+0000","feature":"com.chameleonforensics.chameleon.HoneyTokens","action":"triggered","extra":"Honeytoken access detected: 0\t\/storage\/emulated\/0\/honeytoken_20260111_123516.txt","sdk":31}
