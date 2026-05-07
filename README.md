@@ -98,6 +98,48 @@ These paths may be optionally overridden in the Settings tab, but PATH-based res
 
 ---
 
+## Included Anti-Forensic Features
+
+ChameleonAF currently includes several anti-forensic and anti-analysis monitoring modules designed to detect common forensic acquisition or analyst interaction behaviours during Android investigations.
+
+### 1. ADB Screen Capture Detection (`ADBScreenCapture.java`)
+
+Monitors active system processes using elevated (`su`) access to detect execution of the Android `screencap` utility via ADB. The module continuously polls running processes and triggers telemetry events when a `screencap` process executed by the `shell` user is identified.
+
+This feature is intended to detect attempts to capture the device display remotely during forensic examination or analyst interaction.
+
+### 2. Anti-Agent Package Installation Detection (`AntiAgent.java`)
+
+Registers a broadcast receiver that monitors package installation and replacement events (`PACKAGE_ADDED` and `PACKAGE_REPLACED`). The feature detects when a specified forensic, monitoring, or analyst application package is installed or updated on the device.
+
+This allows the framework to identify deployment of targeted forensic tooling or agent-based collection applications during an examination workflow.
+
+**Relevant references**
+
+- K\. J. Karlsson and W. B. Glisson, "Android Anti-forensics: Modifying CyanogenMod," 2014 47th Hawaii International Conference on System Sciences, Waikoloa, HI, USA, 2014, pp. 4828-4837, doi: 10.1109/HICSS.2014.593
+
+### 3. ADB Backup Detection (`AntiBackupDetect.java`)
+
+Performs periodic monitoring of running processes using `su` and `ps` to detect Android backup-related services and commands, including references to `backup`, `BackupManager`, or `backupconfirm`.
+
+The feature is intended to identify logical acquisition attempts using Android backup mechanisms, which have historically been leveraged in mobile forensic workflows for data extraction.
+
+**Relevant references**
+
+- Joseph Lim, Wilson Lim, Isaac Soon, Zhen Yu Kwok, Aloysus Koh, Digital Forensics Project in Singapore Institute of Technology, Dec. 2024
+  
+### 4. Honeytoken File Deployment and Monitoring (`HoneyTokens.java`)
+
+Deploys decoy (“honeytoken”) files into device storage locations and monitors them for access activity using Linux `inotify` mechanisms executed with elevated privileges.
+
+When the honeytoken files are accessed, modified, or interacted with, the framework records telemetry events. This enables detection of analyst browsing, filesystem inspection, or forensic extraction activity targeting user-accessible storage.
+
+**Relevant references**
+
+- DEFCONConference, “DEF CON 33 - Countering Forensics Software by Baiting Them - Weihan Goh, Joseph Lim & Isaac Soon,” YouTube, Oct. 10, 2025. https://www.youtube.com/watch?v=nUh9GVVhjD8 (accessed Mar. 3, 2026) [Additional Contributors - Wilson Lim, Zhen Yu Kwok, Aloysus Koh]
+
+---
+
 ## License
 
 This project is licensed under the **GNU General Public License v3.0**.

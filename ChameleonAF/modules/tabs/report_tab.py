@@ -47,7 +47,7 @@ def build_report_tab(parent):
 
     # ---------------- Left Pane ----------------
     left = ttk.Frame(panes)
-    panes.add(left, weight=0)  # shrink left pane by lowering its weight
+    panes.add(left, weight=0) 
 
     # --- Date Filter Row ---
     filter_row = ttk.Frame(left)
@@ -86,7 +86,6 @@ def build_report_tab(parent):
         path = REPORT_DIR / file
         try:
             lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
-            # Try to pretty-print JSON lines
             pretty_lines = []
             for line in lines:
                 try:
@@ -114,7 +113,6 @@ def build_report_tab(parent):
         xscroll = ttk.Scrollbar(frame, orient="horizontal", command=txt.xview)
         txt.configure(yscrollcommand=yscroll.set, xscrollcommand=xscroll.set)
 
-        # Grid layout for nice alignment
         txt.grid(row=0, column=0, sticky="nsew")
         yscroll.grid(row=0, column=1, sticky="ns")
         xscroll.grid(row=1, column=0, sticky="ew")
@@ -195,7 +193,7 @@ def build_report_tab(parent):
     matrix = ttk.Labelframe(right, text="Feature Status")
     matrix.pack(fill="both", expand=True)
     # --- Added Class Path column ---
-    feat_cols = ("Feature", "Class Path", "Initialised", "Triggered", "Triggered Time", "Notes")
+    feat_cols = ("Feature", "Class Path", "Initialised", "Triggered", "No. of Triggers", "Latest Trigger Time (UTC)", "Notes")
     feat_tree = ttk.Treeview(matrix, columns=feat_cols, show="headings", height=12)
     for c in feat_cols:
         feat_tree.heading(c, text=c)
@@ -204,10 +202,11 @@ def build_report_tab(parent):
             "Class Path": 300,
             "Initialised": 100,
             "Triggered": 100,
-            "Triggered Time": 180,
+            "No. of Triggers": 120,
+            "Latest Trigger Time (UTC)": 210,
             "Notes": 260,
         }[c]
-        anchor = "center" if c in ("Initialised", "Triggered") else "w"
+        anchor = "center" if c in ("Initialised", "Triggered", "No. of Triggers") else "w"
         feat_tree.column(c, width=width, anchor=anchor)
     feat_tree.pack(fill="both", expand=True, padx=6, pady=6)
 
@@ -315,13 +314,6 @@ def build_report_tab(parent):
                             raw = o.get("ts") or o.get("time") or o.get("timestamp")
                             return str(raw) if raw else "FAILED DUE TO NO INITIALISATIONS"
 
-                        # Convert to local timezone if dt is timezone-aware
-                        try:
-                            if dt.tzinfo is not None:
-                                dt = dt.astimezone()
-                        except Exception:
-                            pass
-
                         return dt.strftime(DATE_FMT)
 
         except Exception:
@@ -417,7 +409,15 @@ def build_report_tab(parent):
                     # Look up display name via class_name; fallback to class_name itself
                     disp = feature_name_map.get(class_name, class_name)
 
-                    st = per.setdefault(disp, {"fqcn": fqcn, "init": False, "trig": False, "trig_time": "—", "saw_init": False})
+                    st = per.setdefault(disp, {
+                        "fqcn": fqcn,
+                        "init": False,
+                        "trig": False,
+                        "trigger_count": 0,
+                        "latest_trigger_dt": None,
+                        "latest_trigger_time": "—",
+                        "saw_init": False,
+                    })
 
                     evt = (o.get("event") or o.get("state") or o.get("action") or o.get("status") or "")
                     evt_l = str(evt).lower()
@@ -429,8 +429,17 @@ def build_report_tab(parent):
 
                     if "trigger" in evt_l or "fired" in evt_l or "activated" in evt_l:
                         st["trig"] = True
-                        if st["trig_time"] == "—":
-                            st["trig_time"] = parse_ts(o)
+                        st["trigger_count"] += 1
+
+                        raw_ts = o.get("ts") or o.get("time") or o.get("timestamp")
+                        dt = _parse_any_ts(raw_ts)
+
+                        if dt is not None:
+                            if st["latest_trigger_dt"] is None or dt > st["latest_trigger_dt"]:
+                                st["latest_trigger_dt"] = dt
+                                st["latest_trigger_time"] = dt.strftime(DATE_FMT)
+                        else:
+                            st["latest_trigger_time"] = parse_ts(o)
 
         except Exception as e:
             _set_status(f"Parse error: {e}")
@@ -449,7 +458,7 @@ def build_report_tab(parent):
                     trig_v, tag, note = "✗", "bad", "Initialisation started but not completed"
                 else:
                     trig_v, tag, note = "✗", "muted", "Feature never initialised"
-            rows.append((disp, st["fqcn"], init_v, trig_v, st["trig_time"], note, tag))
+            rows.append((disp, st["fqcn"], init_v, trig_v, st["trigger_count"], st["latest_trigger_time"], note, tag,))
         return rows
 
     def _populate_features(rows):
@@ -484,7 +493,7 @@ def build_report_tab(parent):
         ticks = sum(1 for r in rows if r[2] == "✓" and r[3] == "✓")
         crosses = total - ticks
 
-        # ---- Overall Status (pending precedence + ALL/majority wording) ----
+        # ---- Overall Status ----
         total = len(rows)
 
         pending = sum(1 for r in rows if r[-1] == "bad")  # init started but not completed
@@ -530,6 +539,7 @@ def build_report_tab(parent):
         _populate_features(rows)
 
     report_tree.bind("<<TreeviewSelect>>", on_select_report)
+    report_tree.bind("<Double-1>", lambda e: on_view_raw())
     from_entry.bind("<Return>", lambda e: on_apply_filter())
     to_entry.bind("<Return>", lambda e: on_apply_filter())
 
@@ -542,8 +552,6 @@ def build_report_tab(parent):
             return
         if str(sel) == str(outer):  # compare widget path
             refresh_list(select_first=True)
-
-
 
     # Bind only if parent is a Notebook
     parent.bind("<<NotebookTabChanged>>", _on_tab_changed)

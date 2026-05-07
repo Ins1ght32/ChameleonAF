@@ -19,23 +19,26 @@ public class RootWaiter {
     public static void startLoop(Activity a) {
         if (loopStarted) return;
         loopStarted = true;
-
         Handler h = new Handler(a.getMainLooper());
         final Runnable[] checker = new Runnable[1];
+
         checker[0] = () -> {
-            if (RootCheckUtils.hasRootAccess()) {
-                Log.i(TAG, "Root granted! Executing delayed features…");
-
-                for (UiInjector.RowRefs r : queued) {
-                    AutoRunner.runFeatureImmediately(a, r);
-                }
-                queued.clear();
-            } else {
-                Log.d(TAG, "Root not yet granted… retrying");
-                h.postDelayed(checker[0], 2000); // 2s retry
-            }
+            new Thread(() -> {
+                boolean granted = RootCheckUtils.hasRootAccess();
+                a.runOnUiThread(() -> {
+                    if (granted) {
+                        Log.i(TAG, "Root granted! Executing delayed features…");
+                        for (UiInjector.RowRefs r : queued) {
+                            AutoRunner.runFeatureImmediately(a, r);
+                        }
+                        queued.clear();
+                    } else {
+                        Log.d(TAG, "Root not yet granted… retrying");
+                        h.postDelayed(checker[0], 4000);
+                    }
+                });
+            }).start();
         };
-
         h.post(checker[0]);
     }
 }

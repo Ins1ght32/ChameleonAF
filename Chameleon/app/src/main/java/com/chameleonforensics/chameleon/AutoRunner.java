@@ -84,6 +84,7 @@ public class AutoRunner {
             if (result) {
                 ReportCore.recordTriggerState(a, r.className, "initialisation_completed");
                 setStatus(r.statusView, "OK");
+                UiInjector.resetLatestTrigger(r.triggerView);
             } else {
                 ReportCore.recordTriggerState(a, r.className, "initialise_failed", "Returned false");
                 setStatus(r.statusView, "Error: failed");

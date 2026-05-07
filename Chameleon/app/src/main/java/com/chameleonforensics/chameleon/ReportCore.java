@@ -64,7 +64,8 @@ public final class ReportCore {
             ensureSession(ctx);
 
             JSONObject line = new JSONObject();
-            line.put("ts", nowIso());
+            String ts = nowIso();
+            line.put("ts", ts);
             line.put("feature", safe(featureName));
             line.put("action", safe(action));
             if (extra != null && !extra.isEmpty()) line.put("extra", extra);
@@ -77,6 +78,11 @@ public final class ReportCore {
                     fw.write("\n");
                 }
             }
+
+            if ("triggered".equals(action)) {
+                UiInjector.markTriggered(featureName, ts);
+            }
+
         } catch (Throwable t) {
             Log.e(TAG, "recordTriggerState failed", t);
         }
