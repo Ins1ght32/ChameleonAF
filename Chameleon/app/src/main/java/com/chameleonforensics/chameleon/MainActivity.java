@@ -11,6 +11,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ChameleonForegroundService.start(this);
+        Log.i(TAG, "Foreground Service created");
+
         setContentView(R.layout.activity_main);
 
         // Base app log — proves stock APK works before smali injection

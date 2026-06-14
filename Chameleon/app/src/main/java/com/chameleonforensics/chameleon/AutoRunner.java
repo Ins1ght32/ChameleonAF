@@ -22,19 +22,19 @@ public class AutoRunner {
 
             h.postDelayed(() -> {
                 UiInjector.RowRefs r = rows[idx];
-                setStatus(r.statusView, "Pending");
+                setFeatureStatus(a, r, "Pending");
 
                 try {
                     Class<?> c = Class.forName(r.className);
 
                     String[] special = SpecialFeatureRequirements.getSpecialPerms(r.className);
                     if (special != null && special.length > 0 && SpecialPerms.anyMissing(a, special)) {
-                        setStatus(r.statusView, "Waiting for permissions…");
+                        specialNeeded[0] = true;
+                        setFeatureStatus(a, r, "Waiting for permissions…");
                         SpecialPermWaiter.register(r, special);
                         SpecialPermWaiter.startLoop(a);
                         return;
                     }
-
 
                     boolean needsRoot = false;
 
@@ -45,16 +45,20 @@ public class AutoRunner {
                     }
 
                     if (needsRoot) {
-                        rootNeeded[0] = true; // flag that root is needed by at least one feature
-                        setStatus(r.statusView, "Waiting for root…");
-                        RootWaiter.registerRootFeature(r);
+                        if (RootWaiter.isRootGranted()) {
+                            runFeatureImmediately(a, r);
+                        } else {
+                            rootNeeded[0] = true;
+                            setFeatureStatus(a, r, "Waiting for root…");
+                            RootWaiter.registerRootFeature(r);
+                        }
                     } else {
                         runFeatureImmediately(a, r);
                     }
 
                 } catch (Throwable t) {
                     ReportCore.recordTriggerState(a, r.className, "initialise_failed", "Reflection error");
-                    setStatus(r.statusView, "Error: reflection");
+                    setFeatureStatus(a, r, "Error: reflection");
                     Log.e(TAG, "Failed preparing feature: " + r.className, t);
                 }
             }, when);
@@ -83,15 +87,15 @@ public class AutoRunner {
             boolean result = (boolean) c.getMethod("run", Activity.class).invoke(null, a);
             if (result) {
                 ReportCore.recordTriggerState(a, r.className, "initialisation_completed");
-                setStatus(r.statusView, "OK");
+                setFeatureStatus(a, r, "OK");
                 UiInjector.resetLatestTrigger(r.triggerView);
             } else {
                 ReportCore.recordTriggerState(a, r.className, "initialise_failed", "Returned false");
-                setStatus(r.statusView, "Error: failed");
+                setFeatureStatus(a, r, "Error: failed");
             }
         } catch (Throwable t) {
             ReportCore.recordTriggerState(a, r.className, "initialise_failed", t.getClass().getSimpleName());
-            setStatus(r.statusView, "Error: " + t.getClass().getSimpleName());
+            setFeatureStatus(a, r, "Error: " + t.getClass().getSimpleName());
             Log.e(TAG, "Feature run failed: " + r.className, t);
         }
     }
@@ -135,10 +139,10 @@ public class AutoRunner {
         if (a == null || r == null) return;
 
         try {
-            // Special perms gate (defensive; should already be satisfied when called from waiter)
+            // Special perms gate
             String[] special = SpecialFeatureRequirements.getSpecialPerms(r.className);
             if (special != null && special.length > 0 && SpecialPerms.anyMissing(a, special)) {
-                setStatus(r.statusView, "Waiting for permissions…");
+                setFeatureStatus(a, r, "Waiting for permissions…");
                 SpecialPermWaiter.register(r, special);
                 SpecialPermWaiter.startLoop(a);
                 return;
@@ -147,26 +151,41 @@ public class AutoRunner {
             // Root gate
             Class<?> c = Class.forName(r.className);
             boolean needsRoot = false;
+
             try {
                 needsRoot = (boolean) c.getMethod("requiresRoot").invoke(null);
             } catch (NoSuchMethodException nsme) {
                 Log.w(TAG, "No requiresRoot() for " + r.className + " — assuming false");
             }
 
-            if (needsRoot) {
-                setStatus(r.statusView, "Waiting for root…");
+            if (needsRoot && !RootWaiter.isRootGranted()) {
+                setFeatureStatus(a, r, "Waiting for root…");
                 RootWaiter.registerRootFeature(r);
                 RootWaiter.startLoop(a);
                 return;
             }
 
-            // No gates -> run
+            // All gates satisfied
             runFeatureImmediately(a, r);
 
         } catch (Throwable t) {
             ReportCore.recordTriggerState(a, r.className, "initialise_failed", t.getClass().getSimpleName());
-            setStatus(r.statusView, "Error: " + t.getClass().getSimpleName());
+            setFeatureStatus(a, r, "Error: " + t.getClass().getSimpleName());
             Log.e(TAG, "runFeatureWithGates failed: " + r.className, t);
+        }
+    }
+
+    private static void setFeatureStatus(Activity a, UiInjector.RowRefs r, String text) {
+        if (r != null && r.className != null) {
+            FeatureStatusStore.setStatus(r.className, text);
+        }
+
+        if (a != null) {
+            ChameleonForegroundService.refreshNotification(a);
+        }
+
+        if (r != null) {
+            setStatus(r.statusView, text);
         }
     }
 

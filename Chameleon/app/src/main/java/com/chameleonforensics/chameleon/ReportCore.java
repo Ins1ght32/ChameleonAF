@@ -35,6 +35,7 @@ public final class ReportCore {
             String[] allFeatures = FeatureRegistry.featureClasses;
             if (allFeatures != null) {
                 for (String f : FeatureRegistry.featureClasses) {
+                    FeatureStatusStore.initFeature(f);
                     recordTriggerState(ctx, f, "initialising");
                 }
             }
@@ -81,6 +82,9 @@ public final class ReportCore {
 
             if ("triggered".equals(action)) {
                 UiInjector.markTriggered(featureName, ts);
+                FeatureStatusStore.markTriggered(featureName, ts);
+                ChameleonForegroundService.refreshNotification(ctx);
+                ChameleonForegroundService.showFeatureTriggeredNotification(ctx, featureName, ts);
             }
 
         } catch (Throwable t) {
